@@ -8,7 +8,7 @@
     </thead>
     <tbody>
     @foreach($products as $product)
-        <tr data-id="{{$product->id}}" data-description="{{$product->description}}" data-characteristics="{{$product->characteristics}}" data-use="{{$product->use}}" data-name="{{$product->name}}">
+        <tr data-id="{{$product->id}}">
             <td data-edit scope="row">{{$product->name}}</td>
             <td data-edit>{{$product->category}}</td>
             <td data-delete class="p-1">

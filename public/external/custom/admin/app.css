@@ -130,6 +130,11 @@ input:focus:not([readonly])+label, textarea:focus:not([readonly])+label {
     width: 100%;
     height: 2.1rem;
 }
+
+input.file-path[placeholder] {
+    font-size: smaller!important;
+}
+
 .md-form input[type=text] {
     -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
     transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;

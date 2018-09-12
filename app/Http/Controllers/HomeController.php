@@ -126,17 +126,67 @@ class HomeController extends Controller
     public function editProduct(Request $request)
     {
         $product = Product::whereId($request->id)->firstOrFail();
+        $photos = ProductPhotos::whereProductId($product->id)->get();
+        if(!empty($photos)){
+            foreach($photos as $photo)
+            {
+                $photo->delete();
+            }
+            File::deleteDirectory(public_path('/images/related/'.$product->slug));
+        }
+
+        if(!empty($request->file('cover')))
+        {
+            File::delete(public_path().'/images/cover/'.$product->slug.'/'.$product->cover);
+            $product->cover = $this->dash($request->file('cover')->getClientOriginalName());
+            $request->file('cover')->move('images/cover/'.$product->slug, $this->dash($request->file('cover')->getClientOriginalName()));
+            $img = Image::make(File::get(public_path('images/cover/'.$product->slug.'/'.$this->dash($request->file('cover')->getClientOriginalName()))));
+            $img->resize(500,500);
+            $img->save(public_path('images/cover/'.$product->slug.'/'.$this->dash($request->file('cover')->getClientOriginalName())));
+
+        }
+        if(!empty($request->file('photos')))
+        {
+            foreach($request->file('photos') as $photo)
+            {
+                ProductPhotos::create([
+                    'product_id' => $product->id,
+                    'product_photo' => $this->dash($photo->getClientOriginalName())
+                ]);
+
+                $photo->move('images/related/'.$product->slug, $this->dash($photo->getClientOriginalName()));
+                $img = Image::make(File::get(public_path('images/related/'.$product->slug.'/'.$this->dash($photo->getClientOriginalName()))));
+                $img->resize(500,500);
+                $img->save(public_path('images/related/'.$product->slug.'/'.$this->dash($photo->getClientOriginalName())));
+
+            }
+        }
         $product->name = $request->name;
         $product->description = $request->description;
         $product->characteristics = $request->characteristics;
         $product->use = $request->use;
+
         if($product->save())
         {
             return response()->json(['success' => 'Продукт был успешно отредактирован'], Response::HTTP_OK);
         }
 
         return response()->json(['error' => 'Произошла непредвиденная ошибка'], Response::HTTP_UNPROCESSABLE_ENTITY);
+
+
+
+
+
     }
+
+    public function editingProduct(Request $request)
+    {
+        $product = Product::whereId($request->id)->first();
+        return response()->json(['product' => $product], Response::HTTP_OK);
+    }
+
+
+
 
     public function deleteProduct(Request $request)
     {

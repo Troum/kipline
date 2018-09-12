@@ -28,5 +28,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::post('/home/add', 'HomeController@addProduct');
 Route::post('/home/edit', 'HomeController@editProduct');
+Route::get('/home/open-editing/{id}', 'HomeController@editingProduct');
 Route::post('/home/delete', 'HomeController@deleteProduct');
 Route::get('/home/refresh', 'HomeController@refreshTable');

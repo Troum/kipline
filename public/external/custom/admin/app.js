@@ -4,7 +4,8 @@ $(document).ready(function(){
         loader = $('.loader'),
         modal = $('#editModal'),
         confirm = $('#confirmModal'),
-        fd = new FormData();
+        fd = new FormData(),
+        id = null;
 
     function clearAll(data){
         $(data).find('input').each(function () {
@@ -85,6 +86,18 @@ $(document).ready(function(){
         filename(length, '#productPhotosFilename', $(this));
 
     });
+
+    $('#newProductPhotos').on('change', function () {
+        let length = $(this)[0].files.length;
+        fd.append('cover', $(this).prop('files')[0]);
+        for (let i = 0; i <= length; i++) {
+            fd.append("photos[]", $(this).prop('files')[i]);
+        }
+        filename(length, '#newProductPhotosFilename', $(this));
+
+    });
+
+
     $('#addProduct').on('click', function () {
         loader.show();
         fd.append('product', $('#productName').val());
@@ -124,21 +137,45 @@ $(document).ready(function(){
 
     });
     body.on('click','td[data-edit]',function () {
-        let name = $(this).parent('tr').data('name'),
-            description = $(this).parent('tr').data('description'),
-            characteristics = $(this).parent('tr').data('characteristics'),
-            use = $(this).parent('tr').data('use');
-        modal.modal('show');
-        modal.find('#newProductName').val(name);
-        tinymce.get('newProductDescription').setContent(description);
-        tinymce.get('newProductCharacteristics').setContent(characteristics);
-        tinymce.get('newProductUse').setContent(use);
-        localStorage.setItem('id', $(this).parent('tr').data('id'));
+        id = $(this).parent('tr').data('id');
+        console.log(id);
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            url: '/home/open-editing/' + id,
+            type: 'GET',
+            dataType: 'JSON',
+            success: function (response) {
+                let name = response.product.name,
+                    description = response.product.description,
+                    characteristics = response.product.characteristics,
+                    use = response.product.use,
+                    cover = '/images/cover/' + response.product.slug + '/' + response.product.cover;
+                modal.find('#newProductName').val(name);
+                modal.find('#current-cover').attr('src', cover);
+                tinymce.get('newProductDescription').setContent(description);
+                tinymce.get('newProductCharacteristics').setContent(characteristics);
+                tinymce.get('newProductUse').setContent(use);
+                modal.modal('show');
+            },
+            error: function(error) {
+                loader.hide();
+                for(let err in error.responseJSON.errors ) {
+                    toastr.error(error.responseJSON.errors[err][0]);
+                }
+            }
+        });
     });
+
+
 
     body.on('click','#saveEdited', function (e) {
         e.preventDefault();
-        fd.append('id', localStorage.getItem('id'));
+        loader.show();
+        fd.append('id', id);
         fd.append('name', $('#newProductName').val());
         fd.append('description', tinymce.get('newProductDescription').getContent());
         fd.append('characteristics', tinymce.get('newProductCharacteristics').getContent() );
@@ -157,13 +194,11 @@ $(document).ready(function(){
             processData: false,
             dataType: 'JSON',
             success: function (response) {
+                loader.hide();
                 modal.modal('hide');
                 $('.modal-backdrop').hide();
-                refresh('home/refresh');
-                tinymce.get('newProductDescription').setContent('');
-                tinymce.get('newProductCharacteristics').setContent('');
-                tinymce.get('newProductUse').setContent('');
                 toastr.success(response.success);
+                refresh('home/refresh');
             },
             error: function(error) {
                 loader.hide();
@@ -174,16 +209,23 @@ $(document).ready(function(){
         });
     });
 
+    body.on('hidden.bs.modal', modal, function () {
+        body.find('#newProductPhotos').val('');
+        body.find('#newProductPhotosFilename').val('');
+        body.find('#current-cover').attr('src', '');
+        fd.delete('photos[]');
+    });
+
     body.on('click','td[data-delete]',function () {
         confirm.modal('show');
         $('#deleting').text($(this).parent('tr').data('name'));
-        localStorage.setItem('id', $(this).parent('tr').data('id'));
+        id = $(this).parent('tr').data('id');
     });
 
     $('#deleteProduct').on('click', function (e) {
         e.preventDefault();
         loader.show();
-        fd.append('id', localStorage.getItem('id'));
+        fd.append('id', id);
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

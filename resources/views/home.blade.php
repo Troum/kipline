@@ -152,6 +152,28 @@
                         <div class="col-md-12 mx-auto">
                             <div class="md-form pb-2 pt-2">
                                 <i class="fas fa-pencil-alt green-text d-inline-block"></i>
+                                <label class="green-text d-inline-block">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Текущее главное фото</label>
+                                <div class="row w-100 m-0 p-0">
+                                    <div class="col-4 mx-auto m-0 p-0 text-center">
+                                        <img src="" alt="" class="img-fluid" id="current-cover">
+                                    </div>
+                                </div>
+                                <div class="row w-100 m-0 p-0" id="additional-photos">
+                                </div>
+                            </div>
+                            <div class="md-form mt-5 mb-5">
+                                <div class="file-field">
+                                    <div class="btn btn-kipline rounded-0 btn-sm float-left">
+                                        <span>Фото продукта</span>
+                                        <input type="file" id="newProductPhotos" name="newProductPhotos" multiple>
+                                    </div>
+                                    <div class="file-path-wrapper">
+                                        <input id="newProductPhotosFilename" class="file-path validate" type="text" placeholder="Изменить фотографии (фотография с названием 1.png/jpg станет главной)" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md-form pb-2 pt-2">
+                                <i class="fas fa-pencil-alt green-text d-inline-block"></i>
                                 <label for="newProductName" class="green-text d-inline-block">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Редактировать название</label>
                             </div>
                             <div class="md-form">
